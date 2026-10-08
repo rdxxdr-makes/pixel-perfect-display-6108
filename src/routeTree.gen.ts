@@ -17,6 +17,7 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedVanishRouteImport } from './routes/_authenticated/vanish'
 import { Route as AuthenticatedDmIndexRouteImport } from './routes/_authenticated/dm.index'
+import { Route as AuthenticatedDmIdRouteImport } from './routes/_authenticated/dm.$id'
 import { Route as AuthenticatedGramIndexRouteImport } from './routes/_authenticated/gram.index'
 import { Route as AuthenticatedGramExploreRouteImport } from './routes/_authenticated/gram.explore'
 import { Route as AuthenticatedPIdRouteImport } from './routes/_authenticated/p.$id'
@@ -62,6 +63,11 @@ const AuthenticatedDmIndexRoute = AuthenticatedDmIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedDmRoute,
 } as any)
+const AuthenticatedDmIdRoute = AuthenticatedDmIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedDmRoute,
+} as any)
 const AuthenticatedGramIndexRoute = AuthenticatedGramIndexRouteImport.update({
   id: '/gram/',
   path: '/gram/',
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/vanish': typeof AuthenticatedVanishRoute
+  '/dm/$id': typeof AuthenticatedDmIdRoute
   '/gram/explore': typeof AuthenticatedGramExploreRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/vanish': typeof AuthenticatedVanishRoute
+  '/dm/$id': typeof AuthenticatedDmIdRoute
   '/gram/explore': typeof AuthenticatedGramExploreRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/vanish': typeof AuthenticatedVanishRoute
+  '/_authenticated/dm/$id': typeof AuthenticatedDmIdRoute
   '/_authenticated/gram/explore': typeof AuthenticatedGramExploreRoute
   '/_authenticated/p/$id': typeof AuthenticatedPIdRoute
   '/_authenticated/u/$username': typeof AuthenticatedUUsernameRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/settings'
     | '/vanish'
+    | '/dm/$id'
     | '/gram/explore'
     | '/p/$id'
     | '/u/$username'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/settings'
     | '/vanish'
+    | '/dm/$id'
     | '/gram/explore'
     | '/p/$id'
     | '/u/$username'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/settings'
     | '/_authenticated/vanish'
+    | '/_authenticated/dm/$id'
     | '/_authenticated/gram/explore'
     | '/_authenticated/p/$id'
     | '/_authenticated/u/$username'
@@ -230,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDmIndexRouteImport
       parentRoute: typeof AuthenticatedDmRoute
     }
+    '/_authenticated/dm/$id': {
+      id: '/_authenticated/dm/$id'
+      path: '/$id'
+      fullPath: '/dm/$id'
+      preLoaderRoute: typeof AuthenticatedDmIdRouteImport
+      parentRoute: typeof AuthenticatedDmRoute
+    }
     '/_authenticated/gram/': {
       id: '/_authenticated/gram/'
       path: '/gram'
@@ -262,10 +281,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedDmRouteChildren {
+  AuthenticatedDmIdRoute: typeof AuthenticatedDmIdRoute
   AuthenticatedDmIndexRoute: typeof AuthenticatedDmIndexRoute
 }
 
 const AuthenticatedDmRouteChildren: AuthenticatedDmRouteChildren = {
+  AuthenticatedDmIdRoute: AuthenticatedDmIdRoute,
   AuthenticatedDmIndexRoute: AuthenticatedDmIndexRoute,
 }
 
