@@ -18,10 +18,14 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function usernameToEmail(u: string) {
+  const hex = Array.from(new TextEncoder().encode(u)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `u${hex}@orbit.app`;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"in" | "up">("in");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
@@ -34,19 +38,20 @@ function AuthPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (mode === "up") {
+      if ([...username].length !== 8) return toast.error("Username must be exactly 8 characters.");
+      if (password.length !== 10 || !/[A-Za-z]/.test(password) || !/\d/.test(password))
+        return toast.error("Password must be exactly 10 characters with letters and numbers.");
+    }
     setBusy(true);
     try {
+      const email = usernameToEmail(username);
       if (mode === "up") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin + "/gram", data: { username } },
-        });
-        if (error) throw error;
-        if (!data.session) toast.success("Check your email to confirm your account.");
+        const { error } = await supabase.auth.signUp({ email, password, options: { data: { username } } });
+        if (error) throw new Error(/registered/i.test(error.message) ? "Username already taken." : error.message);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) throw new Error("Invalid username or password.");
       }
     } catch (err) {
       toast.error((err as Error).message);
@@ -55,27 +60,18 @@ function AuthPage() {
     }
   }
 
-  async function google() {
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth" });
-    if (r.error) toast.error(r.error.message ?? "Google sign-in failed");
-  }
-
   return (
     <main className="grid min-h-screen place-items-center ambient px-4">
       <div className="glass w-full max-w-sm rounded-[2rem] p-8 shadow-glow animate-mode-in">
         <p className="font-display text-2xl font-bold">orbit<span className="text-gradient-mode">.</span></p>
         <h1 className="mt-6 text-xl font-bold">{mode === "in" ? "Welcome back" : "Create your account"}</h1>
         <p className="mt-1 text-sm text-muted-foreground">One account. Four worlds.</p>
-        <Button variant="glass" className="mt-6 w-full h-11" onClick={google}>Continue with Google</Button>
-        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />or<div className="h-px flex-1 bg-border" /></div>
-        <form onSubmit={submit} className="space-y-3">
-          {mode === "up" && (
-            <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required className="h-11 rounded-xl" />
-          )}
-          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11 rounded-xl" />
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-11 rounded-xl" />
+        <form onSubmit={submit} className="mt-6 space-y-3">
+          <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" className="h-11 rounded-xl" />
+          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete={mode === "in" ? "current-password" : "new-password"} className="h-11 rounded-xl" />
+          {mode === "up" && <p className="text-xs text-muted-foreground">Username: exactly 8 characters. Password: exactly 10, letters + numbers.</p>}
           <Button type="submit" variant="mode" className="w-full h-11" disabled={busy}>
-            {mode === "in" ? "Sign in" : "Sign up"}
+            {mode === "in" ? "Login" : "Sign up"}
           </Button>
         </form>
         <button className="mt-5 w-full text-sm text-muted-foreground hover:text-foreground" onClick={() => setMode(mode === "in" ? "up" : "in")}>

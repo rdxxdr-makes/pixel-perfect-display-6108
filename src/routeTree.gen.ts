@@ -16,12 +16,16 @@ import { Route as AuthenticatedDmRouteImport } from './routes/_authenticated/dm'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedVanishRouteImport } from './routes/_authenticated/vanish'
+import { Route as AuthenticatedWhisperRouteImport } from './routes/_authenticated/whisper'
 import { Route as AuthenticatedDmIndexRouteImport } from './routes/_authenticated/dm.index'
 import { Route as AuthenticatedDmIdRouteImport } from './routes/_authenticated/dm.$id'
 import { Route as AuthenticatedGramIndexRouteImport } from './routes/_authenticated/gram.index'
 import { Route as AuthenticatedGramExploreRouteImport } from './routes/_authenticated/gram.explore'
+import { Route as AuthenticatedJoinCodeRouteImport } from './routes/_authenticated/join.$code'
 import { Route as AuthenticatedPIdRouteImport } from './routes/_authenticated/p.$id'
 import { Route as AuthenticatedUUsernameRouteImport } from './routes/_authenticated/u.$username'
+import { Route as AuthenticatedWhisperIndexRouteImport } from './routes/_authenticated/whisper.index'
+import { Route as AuthenticatedWhisperIdRouteImport } from './routes/_authenticated/whisper.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +62,11 @@ const AuthenticatedVanishRoute = AuthenticatedVanishRouteImport.update({
   path: '/vanish',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWhisperRoute = AuthenticatedWhisperRouteImport.update({
+  id: '/whisper',
+  path: '/whisper',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDmIndexRoute = AuthenticatedDmIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -79,6 +88,11 @@ const AuthenticatedGramExploreRoute =
     path: '/gram/explore',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedJoinCodeRoute = AuthenticatedJoinCodeRouteImport.update({
+  id: '/join/$code',
+  path: '/join/$code',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPIdRoute = AuthenticatedPIdRouteImport.update({
   id: '/p/$id',
   path: '/p/$id',
@@ -89,6 +103,17 @@ const AuthenticatedUUsernameRoute = AuthenticatedUUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWhisperIndexRoute =
+  AuthenticatedWhisperIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedWhisperRoute,
+  } as any)
+const AuthenticatedWhisperIdRoute = AuthenticatedWhisperIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedWhisperRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,12 +122,16 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/vanish': typeof AuthenticatedVanishRoute
+  '/whisper': typeof AuthenticatedWhisperRouteWithChildren
   '/dm/$id': typeof AuthenticatedDmIdRoute
   '/gram/explore': typeof AuthenticatedGramExploreRoute
+  '/join/$code': typeof AuthenticatedJoinCodeRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/whisper/$id': typeof AuthenticatedWhisperIdRoute
   '/dm/': typeof AuthenticatedDmIndexRoute
   '/gram/': typeof AuthenticatedGramIndexRoute
+  '/whisper/': typeof AuthenticatedWhisperIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -112,10 +141,13 @@ export interface FileRoutesByTo {
   '/vanish': typeof AuthenticatedVanishRoute
   '/dm/$id': typeof AuthenticatedDmIdRoute
   '/gram/explore': typeof AuthenticatedGramExploreRoute
+  '/join/$code': typeof AuthenticatedJoinCodeRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/whisper/$id': typeof AuthenticatedWhisperIdRoute
   '/dm': typeof AuthenticatedDmIndexRoute
   '/gram': typeof AuthenticatedGramIndexRoute
+  '/whisper': typeof AuthenticatedWhisperIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -126,12 +158,16 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/vanish': typeof AuthenticatedVanishRoute
+  '/_authenticated/whisper': typeof AuthenticatedWhisperRouteWithChildren
   '/_authenticated/dm/$id': typeof AuthenticatedDmIdRoute
   '/_authenticated/gram/explore': typeof AuthenticatedGramExploreRoute
+  '/_authenticated/join/$code': typeof AuthenticatedJoinCodeRoute
   '/_authenticated/p/$id': typeof AuthenticatedPIdRoute
   '/_authenticated/u/$username': typeof AuthenticatedUUsernameRoute
+  '/_authenticated/whisper/$id': typeof AuthenticatedWhisperIdRoute
   '/_authenticated/dm/': typeof AuthenticatedDmIndexRoute
   '/_authenticated/gram/': typeof AuthenticatedGramIndexRoute
+  '/_authenticated/whisper/': typeof AuthenticatedWhisperIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -142,12 +178,16 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/settings'
     | '/vanish'
+    | '/whisper'
     | '/dm/$id'
     | '/gram/explore'
+    | '/join/$code'
     | '/p/$id'
     | '/u/$username'
+    | '/whisper/$id'
     | '/dm/'
     | '/gram/'
+    | '/whisper/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -157,10 +197,13 @@ export interface FileRouteTypes {
     | '/vanish'
     | '/dm/$id'
     | '/gram/explore'
+    | '/join/$code'
     | '/p/$id'
     | '/u/$username'
+    | '/whisper/$id'
     | '/dm'
     | '/gram'
+    | '/whisper'
   id:
     | '__root__'
     | '/'
@@ -170,12 +213,16 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/settings'
     | '/_authenticated/vanish'
+    | '/_authenticated/whisper'
     | '/_authenticated/dm/$id'
     | '/_authenticated/gram/explore'
+    | '/_authenticated/join/$code'
     | '/_authenticated/p/$id'
     | '/_authenticated/u/$username'
+    | '/_authenticated/whisper/$id'
     | '/_authenticated/dm/'
     | '/_authenticated/gram/'
+    | '/_authenticated/whisper/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -235,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVanishRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/whisper': {
+      id: '/_authenticated/whisper'
+      path: '/whisper'
+      fullPath: '/whisper'
+      preLoaderRoute: typeof AuthenticatedWhisperRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dm/': {
       id: '/_authenticated/dm/'
       path: '/'
@@ -263,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGramExploreRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/join/$code': {
+      id: '/_authenticated/join/$code'
+      path: '/join/$code'
+      fullPath: '/join/$code'
+      preLoaderRoute: typeof AuthenticatedJoinCodeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/p/$id': {
       id: '/_authenticated/p/$id'
       path: '/p/$id'
@@ -276,6 +337,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/u/$username'
       preLoaderRoute: typeof AuthenticatedUUsernameRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/whisper/': {
+      id: '/_authenticated/whisper/'
+      path: '/'
+      fullPath: '/whisper/'
+      preLoaderRoute: typeof AuthenticatedWhisperIndexRouteImport
+      parentRoute: typeof AuthenticatedWhisperRoute
+    }
+    '/_authenticated/whisper/$id': {
+      id: '/_authenticated/whisper/$id'
+      path: '/$id'
+      fullPath: '/whisper/$id'
+      preLoaderRoute: typeof AuthenticatedWhisperIdRouteImport
+      parentRoute: typeof AuthenticatedWhisperRoute
     }
   }
 }
@@ -294,12 +369,27 @@ const AuthenticatedDmRouteWithChildren = AuthenticatedDmRoute._addFileChildren(
   AuthenticatedDmRouteChildren,
 )
 
+interface AuthenticatedWhisperRouteChildren {
+  AuthenticatedWhisperIdRoute: typeof AuthenticatedWhisperIdRoute
+  AuthenticatedWhisperIndexRoute: typeof AuthenticatedWhisperIndexRoute
+}
+
+const AuthenticatedWhisperRouteChildren: AuthenticatedWhisperRouteChildren = {
+  AuthenticatedWhisperIdRoute: AuthenticatedWhisperIdRoute,
+  AuthenticatedWhisperIndexRoute: AuthenticatedWhisperIndexRoute,
+}
+
+const AuthenticatedWhisperRouteWithChildren =
+  AuthenticatedWhisperRoute._addFileChildren(AuthenticatedWhisperRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDmRoute: typeof AuthenticatedDmRouteWithChildren
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedVanishRoute: typeof AuthenticatedVanishRoute
+  AuthenticatedWhisperRoute: typeof AuthenticatedWhisperRouteWithChildren
   AuthenticatedGramExploreRoute: typeof AuthenticatedGramExploreRoute
+  AuthenticatedJoinCodeRoute: typeof AuthenticatedJoinCodeRoute
   AuthenticatedPIdRoute: typeof AuthenticatedPIdRoute
   AuthenticatedUUsernameRoute: typeof AuthenticatedUUsernameRoute
   AuthenticatedGramIndexRoute: typeof AuthenticatedGramIndexRoute
@@ -310,7 +400,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedVanishRoute: AuthenticatedVanishRoute,
+  AuthenticatedWhisperRoute: AuthenticatedWhisperRouteWithChildren,
   AuthenticatedGramExploreRoute: AuthenticatedGramExploreRoute,
+  AuthenticatedJoinCodeRoute: AuthenticatedJoinCodeRoute,
   AuthenticatedPIdRoute: AuthenticatedPIdRoute,
   AuthenticatedUUsernameRoute: AuthenticatedUUsernameRoute,
   AuthenticatedGramIndexRoute: AuthenticatedGramIndexRoute,
