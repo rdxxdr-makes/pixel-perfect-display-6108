@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedDmRouteImport } from './routes/_authenticated/dm'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedVanishRouteImport } from './routes/_authenticated/vanish'
+import { Route as AuthenticatedDmIndexRouteImport } from './routes/_authenticated/dm.index'
 import { Route as AuthenticatedGramIndexRouteImport } from './routes/_authenticated/gram.index'
 import { Route as AuthenticatedGramExploreRouteImport } from './routes/_authenticated/gram.explore'
 import { Route as AuthenticatedPIdRouteImport } from './routes/_authenticated/p.$id'
@@ -34,6 +36,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDmRoute = AuthenticatedDmRouteImport.update({
+  id: '/dm',
+  path: '/dm',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedNotificationsRoute =
   AuthenticatedNotificationsRouteImport.update({
     id: '/notifications',
@@ -49,6 +56,11 @@ const AuthenticatedVanishRoute = AuthenticatedVanishRouteImport.update({
   id: '/vanish',
   path: '/vanish',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDmIndexRoute = AuthenticatedDmIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedDmRoute,
 } as any)
 const AuthenticatedGramIndexRoute = AuthenticatedGramIndexRouteImport.update({
   id: '/gram/',
@@ -75,12 +87,14 @@ const AuthenticatedUUsernameRoute = AuthenticatedUUsernameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/dm': typeof AuthenticatedDmRouteWithChildren
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/vanish': typeof AuthenticatedVanishRoute
   '/gram/explore': typeof AuthenticatedGramExploreRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/dm/': typeof AuthenticatedDmIndexRoute
   '/gram/': typeof AuthenticatedGramIndexRoute
 }
 export interface FileRoutesByTo {
@@ -92,6 +106,7 @@ export interface FileRoutesByTo {
   '/gram/explore': typeof AuthenticatedGramExploreRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/dm': typeof AuthenticatedDmIndexRoute
   '/gram': typeof AuthenticatedGramIndexRoute
 }
 export interface FileRoutesById {
@@ -99,12 +114,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/dm': typeof AuthenticatedDmRouteWithChildren
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/vanish': typeof AuthenticatedVanishRoute
   '/_authenticated/gram/explore': typeof AuthenticatedGramExploreRoute
   '/_authenticated/p/$id': typeof AuthenticatedPIdRoute
   '/_authenticated/u/$username': typeof AuthenticatedUUsernameRoute
+  '/_authenticated/dm/': typeof AuthenticatedDmIndexRoute
   '/_authenticated/gram/': typeof AuthenticatedGramIndexRoute
 }
 export interface FileRouteTypes {
@@ -112,12 +129,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/dm'
     | '/notifications'
     | '/settings'
     | '/vanish'
     | '/gram/explore'
     | '/p/$id'
     | '/u/$username'
+    | '/dm/'
     | '/gram/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -129,18 +148,21 @@ export interface FileRouteTypes {
     | '/gram/explore'
     | '/p/$id'
     | '/u/$username'
+    | '/dm'
     | '/gram'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/dm'
     | '/_authenticated/notifications'
     | '/_authenticated/settings'
     | '/_authenticated/vanish'
     | '/_authenticated/gram/explore'
     | '/_authenticated/p/$id'
     | '/_authenticated/u/$username'
+    | '/_authenticated/dm/'
     | '/_authenticated/gram/'
   fileRoutesById: FileRoutesById
 }
@@ -173,6 +195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dm': {
+      id: '/_authenticated/dm'
+      path: '/dm'
+      fullPath: '/dm'
+      preLoaderRoute: typeof AuthenticatedDmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/notifications': {
       id: '/_authenticated/notifications'
       path: '/notifications'
@@ -193,6 +222,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/vanish'
       preLoaderRoute: typeof AuthenticatedVanishRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dm/': {
+      id: '/_authenticated/dm/'
+      path: '/'
+      fullPath: '/dm/'
+      preLoaderRoute: typeof AuthenticatedDmIndexRouteImport
+      parentRoute: typeof AuthenticatedDmRoute
     }
     '/_authenticated/gram/': {
       id: '/_authenticated/gram/'
@@ -225,7 +261,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedDmRouteChildren {
+  AuthenticatedDmIndexRoute: typeof AuthenticatedDmIndexRoute
+}
+
+const AuthenticatedDmRouteChildren: AuthenticatedDmRouteChildren = {
+  AuthenticatedDmIndexRoute: AuthenticatedDmIndexRoute,
+}
+
+const AuthenticatedDmRouteWithChildren = AuthenticatedDmRoute._addFileChildren(
+  AuthenticatedDmRouteChildren,
+)
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDmRoute: typeof AuthenticatedDmRouteWithChildren
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedVanishRoute: typeof AuthenticatedVanishRoute
@@ -236,6 +285,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDmRoute: AuthenticatedDmRouteWithChildren,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedVanishRoute: AuthenticatedVanishRoute,
