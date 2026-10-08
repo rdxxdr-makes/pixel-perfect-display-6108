@@ -10,33 +10,178 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedDmRouteImport } from './routes/_authenticated/dm'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedVanishRouteImport } from './routes/_authenticated/vanish'
+import { Route as AuthenticatedDmIndexRouteImport } from './routes/_authenticated/dm.index'
+import { Route as AuthenticatedDmIdRouteImport } from './routes/_authenticated/dm.$id'
+import { Route as AuthenticatedGramIndexRouteImport } from './routes/_authenticated/gram.index'
+import { Route as AuthenticatedGramExploreRouteImport } from './routes/_authenticated/gram.explore'
+import { Route as AuthenticatedPIdRouteImport } from './routes/_authenticated/p.$id'
+import { Route as AuthenticatedUUsernameRouteImport } from './routes/_authenticated/u.$username'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDmRoute = AuthenticatedDmRouteImport.update({
+  id: '/dm',
+  path: '/dm',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedVanishRoute = AuthenticatedVanishRouteImport.update({
+  id: '/vanish',
+  path: '/vanish',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDmIndexRoute = AuthenticatedDmIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedDmRoute,
+} as any)
+const AuthenticatedDmIdRoute = AuthenticatedDmIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedDmRoute,
+} as any)
+const AuthenticatedGramIndexRoute = AuthenticatedGramIndexRouteImport.update({
+  id: '/gram/',
+  path: '/gram/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGramExploreRoute =
+  AuthenticatedGramExploreRouteImport.update({
+    id: '/gram/explore',
+    path: '/gram/explore',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPIdRoute = AuthenticatedPIdRouteImport.update({
+  id: '/p/$id',
+  path: '/p/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedUUsernameRoute = AuthenticatedUUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dm': typeof AuthenticatedDmRouteWithChildren
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/vanish': typeof AuthenticatedVanishRoute
+  '/dm/$id': typeof AuthenticatedDmIdRoute
+  '/gram/explore': typeof AuthenticatedGramExploreRoute
+  '/p/$id': typeof AuthenticatedPIdRoute
+  '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/dm/': typeof AuthenticatedDmIndexRoute
+  '/gram/': typeof AuthenticatedGramIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/vanish': typeof AuthenticatedVanishRoute
+  '/dm/$id': typeof AuthenticatedDmIdRoute
+  '/gram/explore': typeof AuthenticatedGramExploreRoute
+  '/p/$id': typeof AuthenticatedPIdRoute
+  '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/dm': typeof AuthenticatedDmIndexRoute
+  '/gram': typeof AuthenticatedGramIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/dm': typeof AuthenticatedDmRouteWithChildren
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/vanish': typeof AuthenticatedVanishRoute
+  '/_authenticated/dm/$id': typeof AuthenticatedDmIdRoute
+  '/_authenticated/gram/explore': typeof AuthenticatedGramExploreRoute
+  '/_authenticated/p/$id': typeof AuthenticatedPIdRoute
+  '/_authenticated/u/$username': typeof AuthenticatedUUsernameRoute
+  '/_authenticated/dm/': typeof AuthenticatedDmIndexRoute
+  '/_authenticated/gram/': typeof AuthenticatedGramIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dm'
+    | '/notifications'
+    | '/settings'
+    | '/vanish'
+    | '/dm/$id'
+    | '/gram/explore'
+    | '/p/$id'
+    | '/u/$username'
+    | '/dm/'
+    | '/gram/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/notifications'
+    | '/settings'
+    | '/vanish'
+    | '/dm/$id'
+    | '/gram/explore'
+    | '/p/$id'
+    | '/u/$username'
+    | '/dm'
+    | '/gram'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dm'
+    | '/_authenticated/notifications'
+    | '/_authenticated/settings'
+    | '/_authenticated/vanish'
+    | '/_authenticated/dm/$id'
+    | '/_authenticated/gram/explore'
+    | '/_authenticated/p/$id'
+    | '/_authenticated/u/$username'
+    | '/_authenticated/dm/'
+    | '/_authenticated/gram/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +193,136 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dm': {
+      id: '/_authenticated/dm'
+      path: '/dm'
+      fullPath: '/dm'
+      preLoaderRoute: typeof AuthenticatedDmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vanish': {
+      id: '/_authenticated/vanish'
+      path: '/vanish'
+      fullPath: '/vanish'
+      preLoaderRoute: typeof AuthenticatedVanishRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dm/': {
+      id: '/_authenticated/dm/'
+      path: '/'
+      fullPath: '/dm/'
+      preLoaderRoute: typeof AuthenticatedDmIndexRouteImport
+      parentRoute: typeof AuthenticatedDmRoute
+    }
+    '/_authenticated/dm/$id': {
+      id: '/_authenticated/dm/$id'
+      path: '/$id'
+      fullPath: '/dm/$id'
+      preLoaderRoute: typeof AuthenticatedDmIdRouteImport
+      parentRoute: typeof AuthenticatedDmRoute
+    }
+    '/_authenticated/gram/': {
+      id: '/_authenticated/gram/'
+      path: '/gram'
+      fullPath: '/gram/'
+      preLoaderRoute: typeof AuthenticatedGramIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/gram/explore': {
+      id: '/_authenticated/gram/explore'
+      path: '/gram/explore'
+      fullPath: '/gram/explore'
+      preLoaderRoute: typeof AuthenticatedGramExploreRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/p/$id': {
+      id: '/_authenticated/p/$id'
+      path: '/p/$id'
+      fullPath: '/p/$id'
+      preLoaderRoute: typeof AuthenticatedPIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/u/$username': {
+      id: '/_authenticated/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof AuthenticatedUUsernameRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedDmRouteChildren {
+  AuthenticatedDmIdRoute: typeof AuthenticatedDmIdRoute
+  AuthenticatedDmIndexRoute: typeof AuthenticatedDmIndexRoute
+}
+
+const AuthenticatedDmRouteChildren: AuthenticatedDmRouteChildren = {
+  AuthenticatedDmIdRoute: AuthenticatedDmIdRoute,
+  AuthenticatedDmIndexRoute: AuthenticatedDmIndexRoute,
+}
+
+const AuthenticatedDmRouteWithChildren = AuthenticatedDmRoute._addFileChildren(
+  AuthenticatedDmRouteChildren,
+)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDmRoute: typeof AuthenticatedDmRouteWithChildren
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedVanishRoute: typeof AuthenticatedVanishRoute
+  AuthenticatedGramExploreRoute: typeof AuthenticatedGramExploreRoute
+  AuthenticatedPIdRoute: typeof AuthenticatedPIdRoute
+  AuthenticatedUUsernameRoute: typeof AuthenticatedUUsernameRoute
+  AuthenticatedGramIndexRoute: typeof AuthenticatedGramIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDmRoute: AuthenticatedDmRouteWithChildren,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedVanishRoute: AuthenticatedVanishRoute,
+  AuthenticatedGramExploreRoute: AuthenticatedGramExploreRoute,
+  AuthenticatedPIdRoute: AuthenticatedPIdRoute,
+  AuthenticatedUUsernameRoute: AuthenticatedUUsernameRoute,
+  AuthenticatedGramIndexRoute: AuthenticatedGramIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
