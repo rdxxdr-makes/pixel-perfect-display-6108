@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedVanishRouteImport } from './routes/_authenticated/vanish'
 import { Route as AuthenticatedGramIndexRouteImport } from './routes/_authenticated/gram.index'
 import { Route as AuthenticatedGramExploreRouteImport } from './routes/_authenticated/gram.explore'
 import { Route as AuthenticatedPIdRouteImport } from './routes/_authenticated/p.$id'
@@ -44,6 +45,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVanishRoute = AuthenticatedVanishRouteImport.update({
+  id: '/vanish',
+  path: '/vanish',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedGramIndexRoute = AuthenticatedGramIndexRouteImport.update({
   id: '/gram/',
   path: '/gram/',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/vanish': typeof AuthenticatedVanishRoute
   '/gram/explore': typeof AuthenticatedGramExploreRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/vanish': typeof AuthenticatedVanishRoute
   '/gram/explore': typeof AuthenticatedGramExploreRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/vanish': typeof AuthenticatedVanishRoute
   '/_authenticated/gram/explore': typeof AuthenticatedGramExploreRoute
   '/_authenticated/p/$id': typeof AuthenticatedPIdRoute
   '/_authenticated/u/$username': typeof AuthenticatedUUsernameRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/notifications'
     | '/settings'
+    | '/vanish'
     | '/gram/explore'
     | '/p/$id'
     | '/u/$username'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/notifications'
     | '/settings'
+    | '/vanish'
     | '/gram/explore'
     | '/p/$id'
     | '/u/$username'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/notifications'
     | '/_authenticated/settings'
+    | '/_authenticated/vanish'
     | '/_authenticated/gram/explore'
     | '/_authenticated/p/$id'
     | '/_authenticated/u/$username'
@@ -175,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vanish': {
+      id: '/_authenticated/vanish'
+      path: '/vanish'
+      fullPath: '/vanish'
+      preLoaderRoute: typeof AuthenticatedVanishRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/gram/': {
       id: '/_authenticated/gram/'
       path: '/gram'
@@ -209,6 +228,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedVanishRoute: typeof AuthenticatedVanishRoute
   AuthenticatedGramExploreRoute: typeof AuthenticatedGramExploreRoute
   AuthenticatedPIdRoute: typeof AuthenticatedPIdRoute
   AuthenticatedUUsernameRoute: typeof AuthenticatedUUsernameRoute
@@ -218,6 +238,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedVanishRoute: AuthenticatedVanishRoute,
   AuthenticatedGramExploreRoute: AuthenticatedGramExploreRoute,
   AuthenticatedPIdRoute: AuthenticatedPIdRoute,
   AuthenticatedUUsernameRoute: AuthenticatedUUsernameRoute,
