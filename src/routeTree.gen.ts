@@ -25,6 +25,7 @@ import { Route as AuthenticatedJoinCodeRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPIdRouteImport } from './routes/_authenticated/p.$id'
 import { Route as AuthenticatedUUsernameRouteImport } from './routes/_authenticated/u.$username'
 import { Route as AuthenticatedWhisperIndexRouteImport } from './routes/_authenticated/whisper.index'
+import { Route as AuthenticatedWhisperIdRouteImport } from './routes/_authenticated/whisper.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -108,6 +109,11 @@ const AuthenticatedWhisperIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedWhisperRoute,
   } as any)
+const AuthenticatedWhisperIdRoute = AuthenticatedWhisperIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedWhisperRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/join/$code': typeof AuthenticatedJoinCodeRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/whisper/$id': typeof AuthenticatedWhisperIdRoute
   '/dm/': typeof AuthenticatedDmIndexRoute
   '/gram/': typeof AuthenticatedGramIndexRoute
   '/whisper/': typeof AuthenticatedWhisperIndexRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/join/$code': typeof AuthenticatedJoinCodeRoute
   '/p/$id': typeof AuthenticatedPIdRoute
   '/u/$username': typeof AuthenticatedUUsernameRoute
+  '/whisper/$id': typeof AuthenticatedWhisperIdRoute
   '/dm': typeof AuthenticatedDmIndexRoute
   '/gram': typeof AuthenticatedGramIndexRoute
   '/whisper': typeof AuthenticatedWhisperIndexRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/_authenticated/join/$code': typeof AuthenticatedJoinCodeRoute
   '/_authenticated/p/$id': typeof AuthenticatedPIdRoute
   '/_authenticated/u/$username': typeof AuthenticatedUUsernameRoute
+  '/_authenticated/whisper/$id': typeof AuthenticatedWhisperIdRoute
   '/_authenticated/dm/': typeof AuthenticatedDmIndexRoute
   '/_authenticated/gram/': typeof AuthenticatedGramIndexRoute
   '/_authenticated/whisper/': typeof AuthenticatedWhisperIndexRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/p/$id'
     | '/u/$username'
+    | '/whisper/$id'
     | '/dm/'
     | '/gram/'
     | '/whisper/'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/p/$id'
     | '/u/$username'
+    | '/whisper/$id'
     | '/dm'
     | '/gram'
     | '/whisper'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/_authenticated/join/$code'
     | '/_authenticated/p/$id'
     | '/_authenticated/u/$username'
+    | '/_authenticated/whisper/$id'
     | '/_authenticated/dm/'
     | '/_authenticated/gram/'
     | '/_authenticated/whisper/'
@@ -333,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWhisperIndexRouteImport
       parentRoute: typeof AuthenticatedWhisperRoute
     }
+    '/_authenticated/whisper/$id': {
+      id: '/_authenticated/whisper/$id'
+      path: '/$id'
+      fullPath: '/whisper/$id'
+      preLoaderRoute: typeof AuthenticatedWhisperIdRouteImport
+      parentRoute: typeof AuthenticatedWhisperRoute
+    }
   }
 }
 
@@ -351,10 +370,12 @@ const AuthenticatedDmRouteWithChildren = AuthenticatedDmRoute._addFileChildren(
 )
 
 interface AuthenticatedWhisperRouteChildren {
+  AuthenticatedWhisperIdRoute: typeof AuthenticatedWhisperIdRoute
   AuthenticatedWhisperIndexRoute: typeof AuthenticatedWhisperIndexRoute
 }
 
 const AuthenticatedWhisperRouteChildren: AuthenticatedWhisperRouteChildren = {
+  AuthenticatedWhisperIdRoute: AuthenticatedWhisperIdRoute,
   AuthenticatedWhisperIndexRoute: AuthenticatedWhisperIndexRoute,
 }
 
