@@ -8,6 +8,13 @@
       "when": 1791487599272,
       "tag": "0000_unified_social_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791489929481,
+      "tag": "0001_tighten_social_reads",
+      "breakpoints": true
     }
   ]
 }
