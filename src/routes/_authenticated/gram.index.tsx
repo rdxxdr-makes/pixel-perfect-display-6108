@@ -37,15 +37,20 @@ function Feed() {
   const { data: groups = [] } = useStoryGroups(userId);
   const [viewer, setViewer] = useState<number | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["posts", "feed", userId],
     queryFn: async () => {
-      const { data: f } = await supabase.from("follows").select("following_id").eq("follower_id", userId).eq("status", "accepted");
+      const timeout = new Promise<never>((_, rej) => setTimeout(() => rej(new Error("Feed timed out")), 12_000));
+      return Promise.race([timeout, (async () => {
+      const { data: f, error: fe } = await supabase.from("follows").select("following_id").eq("follower_id", userId).eq("status", "accepted");
+      if (fe) throw fe;
       const ids = [userId, ...(f ?? []).map((x) => x.following_id)];
       const { data: mine } = await supabase.from("posts").select(POST_SELECT).in("user_id", ids).order("created_at", { ascending: false }).limit(50);
       if ((mine ?? []).length > 0 && ids.length > 1) return { posts: mine as unknown as PostRow[], discover: false };
-      const { data: all } = await supabase.from("posts").select(POST_SELECT).order("created_at", { ascending: false }).limit(50);
-      return { posts: all as unknown as PostRow[], discover: true };
+      const { data: all, error: ae } = await supabase.from("posts").select(POST_SELECT).order("created_at", { ascending: false }).limit(50);
+      if (ae) throw ae;
+      return { posts: (all ?? []) as unknown as PostRow[], discover: true };
+      })()]);
     },
   });
 
@@ -67,6 +72,12 @@ function Feed() {
         <p className="mb-4 px-2 text-sm text-muted-foreground">Fresh from across Orbit — follow people to personalise your feed.</p>
       )}
       {isLoading && <div className="aspect-[4/5] animate-pulse rounded-[1.75rem] bg-muted" />}
+      {isError && !data && (
+        <div className="rounded-[1.75rem] glass p-10 text-center">
+          <h2 className="text-xl font-bold">Couldn't load your feed</h2>
+          <Button variant="mode" className="mt-6" onClick={() => refetch()}>Try again</Button>
+        </div>
+      )}
       {data && data.posts.length === 0 && (
         <div className="rounded-[1.75rem] glass p-10 text-center">
           <h2 className="text-xl font-bold">Nothing here yet</h2>

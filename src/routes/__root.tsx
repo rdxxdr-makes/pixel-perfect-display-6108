@@ -109,8 +109,14 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event) => {
+    let lastUser: string | null | undefined;
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") { lastUser = session?.user.id ?? null; return; }
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      const uid = session?.user.id ?? null;
+      // Supabase re-emits SIGNED_IN on tab focus / token restore; only react to real identity changes.
+      if (event === "SIGNED_IN" && uid === lastUser) return;
+      lastUser = uid;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
