@@ -20,11 +20,11 @@ const accents = ["text-gram", "text-vanish", "text-dm", "text-whisper"];
 
 function Landing() {
   const navigate = useNavigate();
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/gram" });
-    });
-  }, [navigate]);
+  function Landing() {
+  const navigate = useNavigate();
+
+  return (
+    <main className="min-h-screen ambient flex flex-col">
 
   return (
     <main className="min-h-screen ambient flex flex-col">
