@@ -25,8 +25,12 @@ export function useSavedIds(userId: string) {
   return useQuery({
     queryKey: ["saves", userId],
     queryFn: async () => {
-      const { data } = await supabase.from("saves").select("post_id").eq("user_id", userId);
-      return new Set((data ?? []).map((s) => s.post_id));
+      try {
+        const { data } = await supabase.from("saves").select("post_id").eq("user_id", userId);
+        return new Set((data ?? []).map((s) => s.post_id));
+      } catch {
+        return new Set<string>();
+      }
     },
   }).data ?? new Set<string>();
 }
@@ -40,38 +44,39 @@ function Feed() {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["posts", "feed", userId],
     queryFn: async () => {
-      const { data: f } = await supabase
-        .from("follows")
-        .select("following_id")
-        .eq("follower_id", userId)
-        .eq("status", "accepted");
-
-      const followingIds = (f ?? []).map((x) => x.following_id);
-      const ids = [userId, ...followingIds];
-
-      if (followingIds.length > 0) {
-        const { data: mine } = await supabase
-          .from("posts")
-          .select(POST_SELECT)
-          .in("user_id", ids)
-          .order("created_at", { ascending: false })
-          .limit(50);
-
-        if (mine && mine.length > 0) {
-          return { posts: mine as unknown as PostRow[], discover: false };
-        }
-      }
-
-      const { data: all, error: allErr } = await supabase
+      // 1. Pehle normal POST_SELECT try karo
+      let { data: posts, error } = await supabase
         .from("posts")
         .select(POST_SELECT)
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (allErr) throw allErr;
+      // 2. Agar POST_SELECT relation ki wajah se fail ho jaye to direct simple query fallback
+      if (error) {
+        console.warn("POST_SELECT failed, falling back to simple query:", error);
+        const fallback = await supabase
+          .from("posts")
+          .select("*, profile:profiles(*)")
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-      return { posts: (all ?? []) as unknown as PostRow[], discover: true };
+        if (!fallback.error && fallback.data) {
+          return { posts: fallback.data as unknown as PostRow[], discover: true };
+        }
+        
+        // Agar fir bhi fail ho, to bina join ke basic posts uthao
+        const basic = await supabase
+          .from("posts")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(50);
+
+        return { posts: (basic.data ?? []) as unknown as PostRow[], discover: true };
+      }
+
+      return { posts: (posts ?? []) as unknown as PostRow[], discover: true };
     },
+    retry: false,
   });
 
   return (
@@ -90,12 +95,6 @@ function Feed() {
           }
         />
       </div>
-
-      {data?.discover && (data.posts.length > 0) && (
-        <p className="mb-4 px-2 text-sm text-muted-foreground">
-          Fresh from across Orbit ⸱ follow people to personalise your feed.
-        </p>
-      )}
 
       {isLoading && (
         <div className="aspect-[4/5] animate-pulse rounded-[1.75rem] bg-muted" />
