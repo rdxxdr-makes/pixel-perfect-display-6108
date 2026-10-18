@@ -40,10 +40,7 @@ export async function uploadMedia(file: File, userId: string) {
       upsert: true,
     });
 
-  if (uploadError) {
-    console.error("Storage upload error:", uploadError);
-    throw uploadError;
-  }
+  if (uploadError) throw uploadError;
 
   const type = file.type.startsWith("video") ? "video" : "image";
   return { path, type };
@@ -60,13 +57,18 @@ export function useMediaUrl(path?: string | null) {
         return path;
       }
 
-      // Public URL check
-      const { data: pubData } = supabase.storage.from("media").getPublicUrl(path);
-      if (pubData?.publicUrl) return pubData.publicUrl;
+      // 1. Try Signed URL first (valid for 1 year)
+      const { data: signedData, error: signErr } = await supabase.storage
+        .from("media")
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
 
-      // Fallback Signed URL
-      const { data: signedData } = await supabase.storage.from("media").createSignedUrl(path, 3600);
-      return signedData?.signedUrl ?? null;
+      if (!signErr && signedData?.signedUrl) {
+        return signedData.signedUrl;
+      }
+
+      // 2. Fallback to public URL
+      const { data: pubData } = supabase.storage.from("media").getPublicUrl(path);
+      return pubData?.publicUrl ?? null;
     },
   });
 }
