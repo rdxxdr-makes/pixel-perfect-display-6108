@@ -24,7 +24,7 @@ export function CreatePostDialog({ children }: { children: ReactNode }) {
     setPreview(URL.createObjectURL(f));
   }
 
- async function publish() {
+  async function publish() {
     if (!file) return;
     setBusy(true);
     try {
@@ -35,9 +35,7 @@ export function CreatePostDialog({ children }: { children: ReactNode }) {
         media_type: type,
         caption,
       });
-
       if (error) throw error;
-
       toast.success("Posted to The Gram");
       qc.invalidateQueries({ queryKey: ["posts"] });
       setOpen(false);
@@ -51,7 +49,6 @@ export function CreatePostDialog({ children }: { children: ReactNode }) {
       setBusy(false);
     }
   }
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -60,25 +57,40 @@ export function CreatePostDialog({ children }: { children: ReactNode }) {
         <DialogHeader>
           <DialogTitle className="font-display">New post</DialogTitle>
         </DialogHeader>
-        <label className="relative grid aspect-square cursor-pointer place-items-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 hover:bg-muted">
+        <label className="relative grid aspect-square cursor-pointer place-items-center overflow-hidden rounded-2xl border border-dashed border-border text-center hover:border-foreground/40">
           {preview ? (
             file?.type.startsWith("video") ? (
               <video src={preview} className="size-full object-cover" autoPlay muted loop playsInline />
             ) : (
-              <img src={preview} alt="" className="size-full object-cover" />
+              <img src={preview} alt="Preview" className="size-full object-cover" />
             )
           ) : (
-            <div className="text-center text-muted-foreground">
-              <ImagePlus className="mx-auto mb-2 size-10" />
-              <p className="text-sm">Pick a photo or video</p>
+            <div className="flex flex-col items-center gap-2 text-muted-foreground">
+              <ImagePlus className="size-8" />
+              <span className="text-xs">Click to select photo or video</span>
             </div>
           )}
-          <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => pick(e.target.files?.[0])} />
+          <input
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            onChange={(e) => pick(e.target.files?.[0])}
+          />
         </label>
-        <Textarea placeholder="Write a caption…" value={caption} onChange={(e) => setCaption(e.target.value)} className="rounded-xl" />
-        <Button variant="mode" onClick={publish} disabled={!file || busy}>
-          {busy ? "Posting…" : "Share"}
-        </Button>
+        <Textarea
+          placeholder="Write a caption..."
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          rows={3}
+        />
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="mode" disabled={!file || busy} onClick={publish}>
+            {busy ? "Posting..." : "Share"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
