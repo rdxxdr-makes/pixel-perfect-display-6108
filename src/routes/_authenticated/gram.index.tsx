@@ -44,39 +44,24 @@ function Feed() {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["posts", "feed", userId],
     queryFn: async () => {
-      // 1. Pehle normal POST_SELECT try karo
-      let { data: posts, error } = await supabase
-        .from("posts")
-        .select(POST_SELECT)
-        .order("created_at", { ascending: false })
-        .limit(50);
-
-      // 2. Agar POST_SELECT relation ki wajah se fail ho jaye to direct simple query fallback
-      if (error) {
-        console.warn("POST_SELECT failed, falling back to simple query:", error);
-        const fallback = await supabase
+      try {
+        const { data: all, error } = await supabase
           .from("posts")
-          .select("*, profile:profiles(*)")
+          .select(POST_SELECT)
           .order("created_at", { ascending: false })
           .limit(50);
 
-        if (!fallback.error && fallback.data) {
-          return { posts: fallback.data as unknown as PostRow[], discover: true };
+        if (error) {
+          console.error("Feed fetch error:", error);
+          return { posts: [] as PostRow[], discover: true };
         }
-        
-        // Agar fir bhi fail ho, to bina join ke basic posts uthao
-        const basic = await supabase
-          .from("posts")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(50);
 
-        return { posts: (basic.data ?? []) as unknown as PostRow[], discover: true };
+        return { posts: (all ?? []) as unknown as PostRow[], discover: true };
+      } catch (err) {
+        console.error("Feed error:", err);
+        return { posts: [] as PostRow[], discover: true };
       }
-
-      return { posts: (posts ?? []) as unknown as PostRow[], discover: true };
     },
-    retry: false,
   });
 
   return (
@@ -120,7 +105,7 @@ function Feed() {
       )}
 
       <div className="space-y-6">
-        {data?.posts.map((p) => (
+        {data?.posts?.filter((p) => p && p.id).map((p) => (
           <PostCard key={p.id} post={p} userId={userId} saved={saved.has(p.id)} />
         ))}
       </div>
