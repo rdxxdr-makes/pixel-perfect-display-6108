@@ -30,15 +30,22 @@ export function modeFromPath(pathname: string): ModeId {
 export async function uploadMedia(file: File, userId: string) {
   const ext = file.name.split(".").pop() || "bin";
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+
   const { error } = await supabase.storage
     .from("media")
-    .upload(path, file, { contentType: file.type, upsert: false });
-  if (error) throw error;
+    .upload(path, file, { contentType: file.type, upsert: true });
+
+  if (error) {
+    console.error("Storage upload error:", error);
+    throw error;
+  }
+
   const type = file.type.startsWith("video")
     ? "video"
     : file.type.startsWith("image")
-      ? "image"
-      : "file";
+    ? "image"
+    : "file";
+
   return { path, type };
 }
 
@@ -50,6 +57,12 @@ export function useMediaUrl(path?: string | null) {
     queryFn: async () => {
       if (!path) return null;
       if (path.startsWith("http")) return path;
+
+      // 1. Pehle direct public URL lo
+      const { data: pubData } = supabase.storage.from("media").getPublicUrl(path);
+      if (pubData?.publicUrl) return pubData.publicUrl;
+
+      // 2. Fallback signed URL
       const { data } = await supabase.storage.from("media").createSignedUrl(path, 3600);
       return data?.signedUrl ?? null;
     },

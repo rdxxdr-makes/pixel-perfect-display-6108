@@ -24,24 +24,33 @@ export function CreatePostDialog({ children }: { children: ReactNode }) {
     setPreview(URL.createObjectURL(f));
   }
 
-  async function publish() {
+ async function publish() {
     if (!file) return;
     setBusy(true);
     try {
       const { path, type } = await uploadMedia(file, userId);
-      const { error } = await supabase.from("posts").insert({ user_id: userId, media_url: path, media_type: type, caption });
+      const { error } = await supabase.from("posts").insert({
+        user_id: userId,
+        media_url: path,
+        media_type: type,
+        caption,
+      });
+
       if (error) throw error;
+
       toast.success("Posted to The Gram");
       qc.invalidateQueries({ queryKey: ["posts"] });
       setOpen(false);
       setFile(null);
       setPreview(null);
       setCaption("");
-    } catch (e) {
-      toast.error((e as Error).message);
+    } catch (e: any) {
+      console.error("Publish error:", e);
+      toast.error(e?.message || "Failed to upload post");
     } finally {
       setBusy(false);
     }
+  }
   }
 
   return (
