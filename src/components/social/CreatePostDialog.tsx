@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadMedia } from "@/lib/social";
@@ -26,25 +26,46 @@ export function CreatePostDialog({ children }: { children: ReactNode }) {
 
   async function publish() {
     if (!file) return;
+
     setBusy(true);
     try {
-      const { path, type } = await uploadMedia(file, userId);
-      const { error } = await supabase.from("posts").insert({
-        user_id: userId,
+      // Direct session fetch as a rock-solid fallback agar hook me userId delayed ho
+      let currentUserId = userId;
+      if (!currentUserId) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        currentUserId = sessionData.session?.user?.id ?? "";
+      }
+
+      if (!currentUserId) {
+        throw new Error("You must be logged in to post.");
+      }
+
+      // Step 1: Upload to Supabase Storage
+      const { path, type } = await uploadMedia(file, currentUserId);
+
+      // Step 2: Insert row into posts table
+      const { error: insertError } = await supabase.from("posts").insert({
+        user_id: currentUserId,
         media_url: path,
         media_type: type,
-        caption,
+        caption: caption.trim(),
       });
-      if (error) throw error;
-      toast.success("Posted to The Gram");
-      qc.invalidateQueries({ queryKey: ["posts"] });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      toast.success("Posted to The Gram!");
+      await qc.invalidateQueries({ queryKey: ["posts"] });
+
+      // Reset state and close modal
       setOpen(false);
       setFile(null);
       setPreview(null);
       setCaption("");
-    } catch (e: any) {
-      console.error("Publish error:", e);
-      toast.error(e?.message || "Failed to upload post");
+    } catch (err: any) {
+      console.error("Upload/Post Error:", err);
+      toast.error(err?.message || "Failed to publish post.");
     } finally {
       setBusy(false);
     }
@@ -57,6 +78,7 @@ export function CreatePostDialog({ children }: { children: ReactNode }) {
         <DialogHeader>
           <DialogTitle className="font-display">New post</DialogTitle>
         </DialogHeader>
+
         <label className="relative grid aspect-square cursor-pointer place-items-center overflow-hidden rounded-2xl border border-dashed border-border text-center hover:border-foreground/40">
           {preview ? (
             file?.type.startsWith("video") ? (
@@ -77,18 +99,27 @@ export function CreatePostDialog({ children }: { children: ReactNode }) {
             onChange={(e) => pick(e.target.files?.[0])}
           />
         </label>
+
         <Textarea
           placeholder="Write a caption..."
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           rows={3}
         />
+
         <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => setOpen(false)}>
+          <Button variant="ghost" onClick={() => setOpen(false)} disabled={busy}>
             Cancel
           </Button>
           <Button variant="mode" disabled={!file || busy} onClick={publish}>
-            {busy ? "Posting..." : "Share"}
+            {busy ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Posting...
+              </>
+            ) : (
+              "Share"
+            )}
           </Button>
         </div>
       </DialogContent>

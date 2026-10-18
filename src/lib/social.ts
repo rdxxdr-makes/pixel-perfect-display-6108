@@ -28,33 +28,45 @@ export function modeFromPath(pathname: string): ModeId {
 }
 
 export async function uploadMedia(file: File, userId: string) {
-  const ext = file.name.split(".").pop() || "bin";
-  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage
+  const parts = file.name.split(".");
+  const ext = parts.length > 1 ? parts.pop() : "jpg";
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
+  const path = `${userId}/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
     .from("media")
-    .upload(path, file, { contentType: file.type, upsert: false });
+    .upload(path, file, {
+      contentType: file.type || "image/jpeg",
+      upsert: true,
+    });
 
-  if (error) throw error;
+  if (uploadError) {
+    console.error("Storage upload error:", uploadError);
+    throw uploadError;
+  }
 
-  const type = file.type.startsWith("video")
-    ? "video"
-    : file.type.startsWith("image")
-    ? "image"
-    : "file";
-
+  const type = file.type.startsWith("video") ? "video" : "image";
   return { path, type };
 }
 
 export function useMediaUrl(path?: string | null) {
   return useQuery({
     queryKey: ["media", path],
-    enabled: !!path,
+    enabled: Boolean(path),
     staleTime: 50 * 60 * 1000,
     queryFn: async () => {
       if (!path) return null;
-      if (path.startsWith("http")) return path;
-      const { data } = await supabase.storage.from("media").createSignedUrl(path, 3600);
-      return data?.signedUrl ?? null;
+      if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:")) {
+        return path;
+      }
+
+      // Public URL check
+      const { data: pubData } = supabase.storage.from("media").getPublicUrl(path);
+      if (pubData?.publicUrl) return pubData.publicUrl;
+
+      // Fallback Signed URL
+      const { data: signedData } = await supabase.storage.from("media").createSignedUrl(path, 3600);
+      return signedData?.signedUrl ?? null;
     },
   });
 }
