@@ -10,7 +10,7 @@ export const MODES: {
   id: ModeId;
   label: string;
   short: string;
-  path: "/gram" | "/vanish" | "/dm" | "/whisper";
+  path: string;
   icon: LucideIcon;
   tagline: string;
 }[] = [
@@ -23,22 +23,18 @@ export const MODES: {
 export function modeFromPath(pathname: string): ModeId {
   if (pathname.startsWith("/vanish")) return "vanish";
   if (pathname.startsWith("/dm")) return "dm";
-  if (pathname.startsWith("/whisper") || pathname.startsWith("/join")) return "whisper";
+  if (pathname.startsWith("/join")) return "whisper";
   return "gram";
 }
 
 export async function uploadMedia(file: File, userId: string) {
   const ext = file.name.split(".").pop() || "bin";
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-
   const { error } = await supabase.storage
     .from("media")
-    .upload(path, file, { contentType: file.type, upsert: true });
+    .upload(path, file, { contentType: file.type, upsert: false });
 
-  if (error) {
-    console.error("Storage upload error:", error);
-    throw error;
-  }
+  if (error) throw error;
 
   const type = file.type.startsWith("video")
     ? "video"
@@ -57,12 +53,6 @@ export function useMediaUrl(path?: string | null) {
     queryFn: async () => {
       if (!path) return null;
       if (path.startsWith("http")) return path;
-
-      // 1. Pehle direct public URL lo
-      const { data: pubData } = supabase.storage.from("media").getPublicUrl(path);
-      if (pubData?.publicUrl) return pubData.publicUrl;
-
-      // 2. Fallback signed URL
       const { data } = await supabase.storage.from("media").createSignedUrl(path, 3600);
       return data?.signedUrl ?? null;
     },
