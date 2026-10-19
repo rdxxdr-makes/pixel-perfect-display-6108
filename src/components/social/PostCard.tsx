@@ -161,3 +161,25 @@ export function PostCard({
     </article>
   );
 }
+
+// Explore grid component jo missing export tha
+export function PostGrid({ posts }: { posts: PostRow[] }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {posts.map((p) => (
+        <Link
+          key={p.id}
+          to="/p/$id"
+          params={{ id: p.id }}
+          className="group relative aspect-square overflow-hidden rounded-2xl bg-muted/30 transition-transform duration-200 hover:scale-[1.02]"
+        >
+          <Media
+            path={p.media_url}
+            type={p.media_type || "image"}
+            className="size-full object-cover transition-all group-hover:brightness-90"
+          />
+        </Link>
+      ))}
+    </div>
+  );
+}
