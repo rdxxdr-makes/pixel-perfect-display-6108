@@ -22,40 +22,50 @@ function PostView() {
   const { data: post, isLoading, isError } = useQuery({
     queryKey: ["post", id],
     queryFn: async () => {
-      // 1. Pehle standard POST_SELECT se try karo
-      const { data, error } = await supabase
+      // Step 1: Query post with full relation
+      const { data: fullPost, error: fullErr } = await supabase
         .from("posts")
         .select(POST_SELECT)
         .eq("id", id)
         .maybeSingle();
 
-      if (!error && data) {
-        return data as unknown as PostRow;
+      if (!fullErr && fullPost) {
+        return fullPost as unknown as PostRow;
       }
 
-      // 2. Fallback: simple query bina complex joins ke
-      const { data: fallback, error: fallErr } = await supabase
-        .from("posts")
-        .select("*, profile:profiles(*)")
-        .eq("id", id)
-        .maybeSingle();
-
-      if (!fallErr && fallback) {
-        return fallback as unknown as PostRow;
-      }
-
-      // 3. Fallback: basic post
-      const { data: basic, error: basicErr } = await supabase
+      // Step 2: Fallback - get single post safely
+      const { data: rawPost, error: rawErr } = await supabase
         .from("posts")
         .select("*")
         .eq("id", id)
         .maybeSingle();
 
-      if (basicErr || !basic) {
+      if (rawErr || !rawPost) {
         throw new Error("Post not found");
       }
 
-      return basic as unknown as PostRow;
+      // Step 3: Fetch post creator profile separately
+      let profileData = null;
+      if (rawPost.user_id) {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("id, username, display_name, avatar_url")
+          .eq("id", rawPost.user_id)
+          .maybeSingle();
+        profileData = p;
+      }
+
+      // Step 4: Fetch likes safely
+      const { data: likesData } = await supabase
+        .from("likes")
+        .select("user_id")
+        .eq("post_id", id);
+
+      return {
+        ...rawPost,
+        profile: profileData,
+        likes: likesData ?? [],
+      } as PostRow;
     },
     retry: 1,
   });
@@ -63,7 +73,7 @@ function PostView() {
   return (
     <div className="mx-auto max-w-xl px-3 py-4 md:py-8">
       <div className="mb-4">
-        <Button asChild variant="ghost" size="sm" className="gap-2">
+        <Button asChild variant="ghost" size="sm" className="gap-2 text-white hover:bg-white/10">
           <Link to="/gram">
             <ArrowLeft className="size-4" />
             Back to feed
@@ -72,12 +82,12 @@ function PostView() {
       </div>
 
       {isLoading && (
-        <div className="aspect-[4/5] animate-pulse rounded-[1.75rem] bg-muted" />
+        <div className="aspect-square animate-pulse rounded-[1.75rem] bg-muted/30" />
       )}
 
       {(isError || (!isLoading && !post)) && (
-        <div className="rounded-[1.75rem] glass p-10 text-center">
-          <h2 className="font-display text-xl font-bold">This post is unavailable.</h2>
+        <div className="rounded-[1.75rem] glass p-10 text-center border border-white/10">
+          <h2 className="font-display text-xl font-bold text-white">This post is unavailable.</h2>
           <Button asChild variant="mode" className="mt-6">
             <Link to="/gram">Go to feed</Link>
           </Button>
