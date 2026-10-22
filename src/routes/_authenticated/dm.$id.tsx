@@ -209,7 +209,7 @@ function Chat() {
           );
           const isLastMine = mine && !msgs.slice(i + 1).some((x) => x.sender_id === userId);
           return (
-            <div key={m.id} className={cn("group flex items-end gap-2", mine ? "justify-end" : "justify-start", !grouped && "pt-2")}>
+            <div key={m.id} className={cn("group flex items-end gap-2", mine ? "justify-end" : "justify-start", !grouped && "pt-2", i === msgs.length - 1 && "float-wiggle-5s")}>
               {!mine && conv.is_group && <div className="w-7">{!grouped && <UserAvatar profile={sender} size="xs" />}</div>}
               <div className={cn("flex max-w-[78%] flex-col", mine ? "items-end" : "items-start")}>
                 {!mine && conv.is_group && !grouped && <span className="mb-0.5 px-2 text-[11px] text-muted-foreground">{sender?.username}</span>}
