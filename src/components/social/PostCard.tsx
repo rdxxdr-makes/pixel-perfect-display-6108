@@ -14,7 +14,7 @@ export const POST_SELECT = `
   media_url,
   media_type,
   created_at,
-  profile:profiles(id, username, display_name, avatar_url),
+  profile:profiles!posts_user_id_fkey(id, username, display_name, avatar_url),
   likes(user_id)
 `;
 
