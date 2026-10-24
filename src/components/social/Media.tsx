@@ -1,15 +1,19 @@
 import { useMediaUrl } from "@/lib/social";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface MediaProps {
   path?: string | null;
   type?: string | null;
   className?: string;
   alt?: string;
+  autoPlay?: boolean;
+  controls?: boolean;
+  onEnded?: () => void;
 }
 
-export function Media({ path, type = "image", className = "", alt = "Media" }: MediaProps) {
+export function Media({ path, type = "image", className = "", alt = "Media", autoPlay, controls = true, onEnded }: MediaProps) {
   const { data: url, isLoading } = useMediaUrl(path);
 
   if (isLoading || !url) {
@@ -21,7 +25,9 @@ export function Media({ path, type = "image", className = "", alt = "Media" }: M
       <video
         src={url}
         className={`size-full object-cover ${className}`}
-        controls
+        controls={controls && !autoPlay}
+        autoPlay={autoPlay}
+        onEnded={onEnded}
         playsInline
       />
     );
@@ -33,36 +39,35 @@ export function Media({ path, type = "image", className = "", alt = "Media" }: M
       alt={alt}
       loading="lazy"
       className={`size-full object-cover ${className}`}
-      onError={(e) => {
-        const target = e.currentTarget;
-        if (!target.dataset.triedPublic && path) {
-          target.dataset.triedPublic = "true";
-          target.src = `https://kvcevknhtaxesftoiwxc.supabase.co/storage/v1/object/public/media/${path}`;
-        }
-      }}
     />
   );
 }
 
-// Routes jo MediaView expect karte hain
 export const MediaView = Media;
 
-// Routes jo UserAvatar expect karte hain
+type AvatarUser = {
+  avatar_url?: string | null;
+  display_name?: string | null;
+  username?: string | null;
+} | null;
+
 interface UserAvatarProps {
-  user?: {
-    avatar_url?: string | null;
-    display_name?: string | null;
-    username?: string | null;
-  } | null;
+  user?: AvatarUser;
+  profile?: AvatarUser;
   avatarUrl?: string | null;
   name?: string | null;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+  ring?: "unseen" | "seen";
+  showOnline?: boolean;
 }
 
-export function UserAvatar({ user, avatarUrl, name, className = "" }: UserAvatarProps) {
-  const rawPath = avatarUrl ?? user?.avatar_url ?? null;
-  const displayName = name ?? user?.display_name ?? user?.username ?? "User";
+const SIZES = { xs: "size-6", sm: "size-9", md: "size-11", lg: "size-16", xl: "size-24" };
+
+export function UserAvatar({ user, profile, avatarUrl, name, className = "", size = "md", ring }: UserAvatarProps) {
+  const u = user ?? profile;
+  const rawPath = avatarUrl ?? u?.avatar_url ?? null;
+  const displayName = name ?? u?.display_name ?? u?.username ?? "User";
   const { data: url } = useMediaUrl(rawPath);
 
   const initials = displayName
@@ -74,7 +79,7 @@ export function UserAvatar({ user, avatarUrl, name, className = "" }: UserAvatar
     .toUpperCase() || "U";
 
   return (
-    <Avatar className={className}>
+    <Avatar className={cn(SIZES[size], ring === "unseen" && "ring-2 ring-primary ring-offset-2 ring-offset-background", ring === "seen" && "ring-2 ring-border ring-offset-2 ring-offset-background", className)}>
       <AvatarImage src={url ?? undefined} alt={displayName} />
       <AvatarFallback>{initials}</AvatarFallback>
     </Avatar>
