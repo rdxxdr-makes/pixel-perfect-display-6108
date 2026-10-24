@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Ghost } from "lucide-react";
@@ -7,6 +7,7 @@ import { useMe } from "@/lib/me";
 import { PostCard, POST_SELECT, type PostRow } from "@/components/social/PostCard";
 import { StoryRail, StoryViewer, useStoryGroups } from "@/components/social/stories";
 import { CreatePostDialog } from "@/components/social/CreatePostDialog";
+import { StoryUploadDialog } from "@/components/social/StoryUploadDialog";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/gram/")({
@@ -40,6 +41,7 @@ function Feed() {
   const saved = useSavedIds(userId);
   const { data: groups = [] } = useStoryGroups(userId);
   const [viewer, setViewer] = useState<number | null>(null);
+  const [storyOpen, setStoryOpen] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["posts", "feed", userId],
@@ -64,6 +66,9 @@ function Feed() {
     },
   });
 
+  const ownIndex = groups.findIndex((g) => g.user.id === userId);
+  const openOwnStory = () => (ownIndex >= 0 ? setViewer(ownIndex) : setStoryOpen(true));
+
   return (
     <div className="mx-auto max-w-xl px-3 py-4 md:py-8">
       <div className="mb-4 rounded-[1.75rem] glass px-4 py-2">
@@ -71,15 +76,16 @@ function Feed() {
           groups={groups}
           onOpen={setViewer}
           leading={
-            <Link to="/vanish" className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
+            <button type="button" onClick={openOwnStory} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
               <div className="grid size-16 place-items-center rounded-full border-2 border-dashed border-border text-muted-foreground">
                 <Ghost className="size-6" />
               </div>
               <span className="text-xs text-muted-foreground">Your story</span>
-            </Link>
+            </button>
           }
         />
       </div>
+      <StoryUploadDialog open={storyOpen} onOpenChange={setStoryOpen} userId={userId} />
 
       {isLoading && (
         <div className="aspect-[4/5] animate-pulse rounded-[1.75rem] bg-muted" />

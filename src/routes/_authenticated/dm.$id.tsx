@@ -59,6 +59,7 @@ function Chat() {
   const endRef = useRef<HTMLDivElement>(null);
   const typingChannel = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const lastTypingSent = useRef(0);
+  const messageInputRef = useRef<HTMLInputElement>(null);
 
   const { data: msgs = [] } = useQuery({
     queryKey: ["messages", id],
