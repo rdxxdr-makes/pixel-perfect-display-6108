@@ -59,6 +59,7 @@ function Chat() {
   const endRef = useRef<HTMLDivElement>(null);
   const typingChannel = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const lastTypingSent = useRef(0);
+  const messageInputRef = useRef<HTMLInputElement>(null);
 
   const { data: msgs = [] } = useQuery({
     queryKey: ["messages", id],
@@ -263,13 +264,13 @@ function Chat() {
             <button aria-label="Cancel reply" onClick={() => setReplyTo(null)}><X className="size-4" /></button>
           </div>
         )}
-        <form onSubmit={(e) => { e.preventDefault(); send(); }} className="flex items-center gap-2">
+        <form onSubmit={(e) => { e.preventDefault(); send(); messageInputRef.current?.focus(); }} className="flex items-center gap-2">
           <label className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full glass text-muted-foreground hover:text-foreground" aria-label="Attach">
             <Paperclip className="size-4" />
             <input type="file" className="hidden" onChange={(e) => attach(e.target.files?.[0])} />
           </label>
-          <input value={text} onChange={(e) => onType(e.target.value)} placeholder="Message" className="h-11 flex-1 rounded-full bg-muted px-4 text-sm outline-none focus:ring-2 focus:ring-ring" />
-          <button type="submit" aria-label="Send" className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-mode text-primary-foreground shadow-glow transition-transform active:scale-90"><Send className="size-4" /></button>
+          <input ref={messageInputRef} value={text} onChange={(e) => onType(e.target.value)} placeholder="Message" enterKeyHint="send" className="h-11 flex-1 rounded-full bg-muted px-4 text-sm outline-none focus:ring-2 focus:ring-ring" />
+          <button type="submit" aria-label="Send" onMouseDown={(e) => e.preventDefault()} onTouchEnd={(e) => { e.preventDefault(); e.currentTarget.form?.requestSubmit(); }} className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-mode text-primary-foreground shadow-glow transition-transform active:scale-90"><Send className="size-4" /></button>
         </form>
       </footer>
 

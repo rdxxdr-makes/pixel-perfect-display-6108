@@ -14,7 +14,7 @@ export const POST_SELECT = `
   media_url,
   media_type,
   created_at,
-  profile:profiles(id, username, display_name, avatar_url),
+  profile:profiles!posts_user_id_fkey(id, username, display_name, avatar_url),
   likes(user_id)
 `;
 
@@ -163,7 +163,7 @@ export function PostCard({
 }
 
 // Explore grid component jo missing export tha
-export function PostGrid({ posts }: { posts: PostRow[] }) {
+export function PostGrid({ posts }: { posts: Pick<PostRow, "id" | "media_url" | "media_type">[] }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {posts.map((p) => (

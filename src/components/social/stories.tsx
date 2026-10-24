@@ -26,7 +26,7 @@ export function useStoryGroups(userId: string) {
     queryFn: async () => {
       const { data: stories } = await supabase
         .from("stories")
-        .select("*, profiles(*)")
+        .select("*, profiles!stories_user_id_fkey(*)")
         .gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: true });
       const { data: views } = await supabase.from("story_views").select("story_id").eq("viewer_id", userId);
