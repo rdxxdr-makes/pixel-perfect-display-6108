@@ -46,6 +46,7 @@ export function Media({ path, type = "image", className = "", alt = "Media", aut
 export const MediaView = Media;
 
 type AvatarUser = {
+  id?: string;
   avatar_url?: string | null;
   display_name?: string | null;
   username?: string | null;
