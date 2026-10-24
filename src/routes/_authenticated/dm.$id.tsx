@@ -269,7 +269,7 @@ function Chat() {
             <input type="file" className="hidden" onChange={(e) => attach(e.target.files?.[0])} />
           </label>
           <input ref={messageInputRef} value={text} onChange={(e) => onType(e.target.value)} placeholder="Message" enterKeyHint="send" className="h-11 flex-1 rounded-full bg-muted px-4 text-sm outline-none focus:ring-2 focus:ring-ring" />
-          <button type="submit" aria-label="Send" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} onTouchEnd={(e) => { e.preventDefault(); e.currentTarget.form?.requestSubmit(); }} className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-mode text-primary-foreground shadow-glow transition-transform active:scale-90"><Send className="size-4" /></button>
+          <button type="submit" aria-label="Send" onMouseDown={(e) => e.preventDefault()} onTouchEnd={(e) => { e.preventDefault(); e.currentTarget.form?.requestSubmit(); }} className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-mode text-primary-foreground shadow-glow transition-transform active:scale-90"><Send className="size-4" /></button>
         </form>
       </footer>
 
